@@ -76,7 +76,7 @@ class App extends React.Component {
         const ls = total[total.length-1], ns = total[total.length-2]
         if(reg.test(ls) && reg.test(cur)) {
           total = [...total.slice(0, -1), ls+cur]
-        } else if(!reg.test(ls) && reg.test(cur) && ns && !reg.test(ns)){
+        } else if(!Number(ls) && reg.test(cur) && ns && !Number(ns)){
           total = [...total.slice(0, -1), ls+cur]
         } else {
           total.push(cur)
@@ -91,7 +91,7 @@ class App extends React.Component {
   request = (data) => {
     const {type, expression} = data
     const arr = this.filterArray(expression.split(''))
-    console.log(arr)
+    console.log(expression)
     const numberArr = arr.filter(item => Number(item))
     const operatorArr = arr.filter(item => !Number(item))
     const params = {
@@ -192,8 +192,3 @@ class App extends React.Component {
 }
 
 export default App;
-
-// add:+
-// subtract: -
-// divide: /
-// multiply: *

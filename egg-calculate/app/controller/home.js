@@ -30,33 +30,6 @@ class HomeController extends Controller {
     }
     ctx.body = numberArr[0];
   }
-
-  async optimization () {
-    const { ctx } = this;
-    let {type,         // true, 数字开头， false：运算符开头
-      expression } = ctx.request.body
-    
-    numberArr = numberArr.map(item => {
-      return parseInt(item)
-    })
-
-    if(!type && (!numberArr.length || operatorArr[0] === '*' || operatorArr[0] ==='/' || operatorArr[0] === '%')) {
-      ctx.body = '错误'
-      return
-    }
-
-    if(!type) {
-      numberArr = [0, ...numberArr]
-    }
-
-    while(operatorArr.length) {
-      const i = operatorArr.findIndex(item =>( item === '*'|| item ==='/' || item === '%'))
-      const index = i > 0 && i || 0
-      calculate(numberArr, operatorArr, operatorArr[index], index)
-    }
-    ctx.body = numberArr[0];
-  }
-
 };
 
 
