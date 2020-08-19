@@ -59,8 +59,8 @@ class App extends React.Component {
   renderRight = () => {
     return this.state.pageRight.map(item => {
       return (
-        item.isPic && (<span key={item.id} data-id={item.code}><img src={item.name} data-id={item.code} /></span>) || 
-        (<span key={item.id} className={`btn ${item.isTwo && 'isTwo' || ''}`} data-id={item.code}>{item.name}</span>)
+        item.isPic ? (<span key={item.id} data-id={item.code}><img src={item.name} data-id={item.code} /></span>) :
+        (<span key={item.id} className={`btn ${item.isTwo ? 'isTwo' : ''}`} data-id={item.code}>{item.name}</span>)
       )
     })
   }
@@ -120,25 +120,30 @@ class App extends React.Component {
           operator = []
           break;
         case '-1':
-          const r = this.deleteLast(result)
-          if(r) {
-            number = numberArr.slice(0, -1)
-            operator = operatorArr
-          }else {
-            operator = operatorArr.slice(0, -1)
-            number = numberArr
+          if(init) {
+            number = []
+            operator = []
+          } else {
+            const r = this.deleteLast(result)
+            if(r) {
+              number = numberArr.slice(0, -1)
+              operator = operatorArr
+            }else {
+              operator = operatorArr.slice(0, -1)
+              number = numberArr
+            }
           }
-          res = init && '' || result.slice(0, -1)
+          res = init ? '' : result.slice(0, -1)
           input = res.charAt(res.length-1)
           break;
         default:
-          res = init && code || result + code
+          res = init ? code : result + code
           input = code
           const valid = this.validatorInput(preInput, input)
           if(reg.test(code)) {
             const last = numberArr.slice(-1)[0]
             if(valid || last === '-') {
-              const str = numberArr.length && last + code || code
+              const str = numberArr.length ? last + code : code
               number = [...numberArr.slice(0, -1), str]
             } else {
               number = [...numberArr, code]
@@ -147,9 +152,14 @@ class App extends React.Component {
           } else {
             number = numberArr
             if(valid) {
-              if((preInput === '+' || preInput === '-') || ((preInput === '*' || preInput === '/' || preInput === '%') && (code === '*' || code === '/'))) {
+              if((preInput === '+' || preInput === '-') || ((preInput === '*' || preInput === '/' || preInput === '%') && (code === '*' || code === '/'|| code === '%'))) {
+                if( !reg.test(result.charAt(result.length-2))&& (code === '*' || code === '/'|| code === '%') ) {
+                  input = preInput
+                  res = result
+                  return
+                }
                 operator = [...operatorArr.slice(0, -1), code]
-                res = init && code || result.slice(0, -1) + code
+                res = init ? code : result.slice(0, -1) + code
               } else if((preInput === '*' || preInput === '/' || preInput === '%')) {
                 if(code === '+') {
                   operator = operatorArr

@@ -3,6 +3,8 @@ import axios from 'axios'
 
 import './App.css';
 
+const reg = /^\d+|\.$/
+
 class App extends React.Component {
   state = {
     pageLeft: [
@@ -39,8 +41,6 @@ class App extends React.Component {
       { id: 64, name: "=", isTwo: true, code: -100 },
     ],
     result: '',       // 显示结果
-    numberArr: [],    // 数字数组
-    operatorArr: [],  // 运算符数组
     init: true,       // 用于判断是否已经提交
     preInput: ''      // 判断前后两次输入是否是同类型
   }
@@ -57,24 +57,50 @@ class App extends React.Component {
   renderRight = () => {
     return this.state.pageRight.map(item => {
       return (
-        item.isPic && (<span key={item.id} data-id={item.code}><img src={item.name} data-id={item.code} /></span>) || 
-        (<span key={item.id} className={`btn ${item.isTwo && 'isTwo' || ''}`} data-id={item.code}>{item.name}</span>)
+        item.isPic ? (<span key={item.id} data-id={item.code}><img src={item.name} data-id={item.code} /></span>) : 
+        (<span key={item.id} className={`btn ${item.isTwo ? 'isTwo' : ''}`} data-id={item.code}>{item.name}</span>)
       )
     })
   }
 
   deleteLast = (string) => {
     const last = string.charAt(string.length-1)
-    const reg = /^\d+|\.$/
+    // const reg = /^\d+|\.$/
     return reg.test(last)
   }
 
+  filterArray = (arr) => {
+    return arr.reduce((total, cur) => {
+      const len = total.length;
+      if(len) {
+        const ls = total[total.length-1], ns = total[total.length-2]
+        if(reg.test(ls) && reg.test(cur)) {
+          total = [...total.slice(0, -1), ls+cur]
+        } else if(!reg.test(ls) && reg.test(cur) && ns && !reg.test(ns)){
+          total = [...total.slice(0, -1), ls+cur]
+        } else {
+          total.push(cur)
+        }
+      } else {
+        total.push(cur)
+      }
+      return total
+    }, [])
+  }
+
   request = (data) => {
-    axios.post('http://127.0.0.1:7001',data).then(res =>{
+    const {type, expression} = data
+    const arr = this.filterArray(expression.split(''))
+    console.log(arr)
+    const numberArr = arr.filter(item => Number(item))
+    const operatorArr = arr.filter(item => !Number(item))
+    const params = {
+      type,         // true, 数字开头， false：运算符开头
+      numberArr, operatorArr
+    }
+    axios.post('http://127.0.0.1:7001',params).then(res =>{
       this.setState({
         result: res.data, 
-        numberArr: [],    
-        operatorArr: [], 
         init: true,       
         preInput: '',     
       })
@@ -83,16 +109,16 @@ class App extends React.Component {
 
   // 判断前后两次输入
   validatorInput = (pre, cur) => {
-    const reg = /^\d+|\.$/;
+    // const reg = /^\d+|\.$/;
     const preReg = reg.test(pre);
     const curReg = reg.test(cur);
     return preReg === curReg
   }
 
   handleClick(e){
-    const reg = /^\d+|\.$/;
+    // const reg = /^\d+|\.$/;
     const code = e.target.dataset.id
-    const { result, numberArr, operatorArr, init, preInput } = this.state
+    const { result, init, preInput } = this.state
 
     if(code === '-100') {     // 提交
       if(result) {
@@ -105,75 +131,45 @@ class App extends React.Component {
         }
         const data = {
           type,         // true, 数字开头， false：运算符开头
-          numberArr, operatorArr
+          expression: result
         }
         this.request(data)
       }
     } else {
-      let res = '', number = [], operator = [], input = ''
+      let res = '', input = ''
       switch (code) {
         case '-2':
           res = ''
-          number = []
-          operator = []
           break;
         case '-1':
-          const r = this.deleteLast(result)
-          if(r) {
-            number = numberArr.slice(0, -1)
-            operator = operatorArr
-          }else {
-            operator = operatorArr.slice(0, -1)
-            number = numberArr
-          }
-          res = init && '' || result.slice(0, -1)
+          res = init ? '' : result.slice(0, -1)
           input = res.charAt(res.length-1)
-          
           break;
         default:
-          res = init && code || result + code
-          input = code
-          const valid = this.validatorInput(preInput, input)
-          if(reg.test(code)) {
-            const last = numberArr.slice(-1)[0]
-            if(valid || last === '-') {
-              const str = numberArr.length && last + code || code
-              number = [...numberArr.slice(0, -1), str]
-            } else {
-              number = [...numberArr, code]
-            }
-            operator = operatorArr
-          } else {
-            number = numberArr
-            if(valid) {
-              if((preInput === '+' || preInput === '-') || ((preInput === '*' || preInput === '/' || preInput === '%') && (code === '*' || code === '/'))) {
-                operator = [...operatorArr.slice(0, -1), code]
-                res = init && code || result.slice(0, -1) + code
-              } else if((preInput === '*' || preInput === '/' || preInput === '%')) {
-                if(code === '+') {
-                  operator = operatorArr
-                  res = result
-                  input = preInput
-                }
-                if(code === '-') {
-                  number = [...numberArr, code]
-                  operator = operatorArr
-                }
-              } else {
-                operator = [...operatorArr, code]
+          const valid = this.validatorInput(preInput, code)
+          if(valid && !reg.test(code)) {
+            if((preInput === '+' || preInput === '-') || 
+              ((preInput === '*' || preInput === '/' || preInput === '%') && (code === '*' || code === '/'|| code === '%'))
+            ) {
+              if( !reg.test(result.charAt(result.length-2))&& (code === '*' || code === '/'|| code === '%') ) {
+                input = preInput
+                res = result
+                return
               }
+              res = init ? code : result.slice(0, -1) + code
+              input = preInput
             } else {
-              operator = [...operatorArr, code]
+              res = init ? code : result + code
+              input = code
             }
+          } else {
+            res = init ? code : result + code
+            input = code
           }
           break;
       }
-      // console.log('number', number)
-      // console.log('operator', operator)
       this.setState({
         result: res,
-        numberArr: number,
-        operatorArr: operator,
         init: false,
         preInput: input
       })

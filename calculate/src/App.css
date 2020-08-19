@@ -29,6 +29,11 @@
 .template {
   height: 20vh;
   border-bottom: 1px solid #ccc;
+  font-size: 30px;
+  color: #1296db;
+  text-align: right;
+  padding: 0 10vw;
+  line-height: 20vh;
 }
 .flex-right img {
   height: 30px;

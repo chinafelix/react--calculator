@@ -3,6 +3,10 @@ html, body, #root {
   width: 100%;
 }
 
+ul, li {
+  list-style: none;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
@@ -15,4 +19,26 @@ body {
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+a {
+  color: #1296db;
+  flex: 1;
+}
+.nav-wrapper {
+  height: 30vh;
+  padding: 0;
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
+}
+.nav-wrapper>li {
+  flex: 1;
+  height: 6vh;
+  line-height: 6vh;
+  text-align: center;
+  box-shadow: 0px 0px 1px 0px rgba(0, 0, 0, .4);
+  display: flex;
+}
+.nav-wrapper>li:active {
+  background-color: rgba(18,150,219, .2);
 }
