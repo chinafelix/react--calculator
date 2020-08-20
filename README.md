@@ -6,7 +6,7 @@
 ### RUNNING
 (```)
   cd react-calculator
-  cmpm install
+  cnpm install
   yarn start
 (```)
 
@@ -15,21 +15,13 @@
 ### RUNNING
 
 (```)
-
-  cd egg-calculator
-  
-  cmpm install
-  
-  // development模式
-  
-  npm run dev
-  
-  或者
-  
-  // 生产模式
-  
-  npm start
-  
+    cd egg-calculator
+    cnpm install
+    // development模式
+    npm run dev
+    或者
+    // 生产模式
+    npm start  
 (```)
 
 ### tips
