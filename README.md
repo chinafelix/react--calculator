@@ -13,15 +13,23 @@
 ## 后端服务用 egg 编写
 
 ### RUNNING
+
 (```)
+
   cd egg-calculator
+  
   cmpm install
   
   // development模式
+  
   npm run dev
+  
   或者
+  
   // 生产模式
+  
   npm start
+  
 (```)
 
 ### tips
