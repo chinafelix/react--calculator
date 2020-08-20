@@ -22,13 +22,11 @@
     cnpm install
     
     // development模式
-    
     npm run dev
     
     或者
     
     // 生产模式
-    
     npm start  
 ```
 
